@@ -16,12 +16,20 @@
       <img id="nightImg" class="night-img" src="img/night.jpg" alt="Ночь" />
     </div>
 
-    <!-- КНОПКА ОТКРЫТИЯ -->
+    <!-- ЗИП-ПАКЕТ (поверх магнитолы) -->
     <div class="hero" id="heroScreen">
-      <button class="open-btn" id="openBtn">🎵 Открыть магнитолу 🎂</button>
+      <div class="zippacket" id="zippacket">
+        <div class="zip-top-bar">
+          <div class="zip-slider left-slider" id="leftSlider"></div>
+          <div class="zip-slider right-slider" id="rightSlider"></div>
+        </div>
+        <div class="zip-body">
+          <div class="zip-text">🎁 Открыть подарок 🎁</div>
+        </div>
+      </div>
     </div>
 
-    <!-- МАГНИТОЛА (без верхней панели) -->
+    <!-- МАГНИТОЛА -->
     <div class="boombox" id="boombox">
       <div class="vinyl-section" id="vinylTouchZone">
         <canvas id="peonyCanvas" width="400" height="400"></canvas>

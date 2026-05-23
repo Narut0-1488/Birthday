@@ -49,53 +49,131 @@ body.open-mode .night-img {
   transform: translateX(0);
 }
 
-/* ---------- КНОПКА ---------- */
+/* ---------- КНОПКА (ОБЁРТКА ДЛЯ ПАКЕТА) ---------- */
 .hero {
   position: fixed;
   inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 20;
-  transition:
-    opacity 0.5s ease,
-    transform 0.6s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-  background: transparent;
+  z-index: 100; /* выше магнитолы */
   pointer-events: auto;
 }
 
-.hero.hide {
-  opacity: 0;
-  transform: scale(0.8);
+/* ========== ЗИП-ПАКЕТ ========== */
+.zippacket {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  max-width: 380px;
+  background: rgba(255, 240, 245, 0.98);
+  border-radius: 48px 48px 56px 56px;
+  box-shadow: 0 30px 40px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(4px);
+  cursor: pointer;
+  transition: transform 0.3s ease;
+  z-index: 101;
+}
+
+/* Верхняя планка с бегунками */
+.zip-top-bar {
+  background: #e0b0c0;
+  height: 44px;
+  border-radius: 48px 48px 20px 20px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Бегунки (застёжки) – абсолютное позиционирование относительно .zip-top-bar */
+.zip-slider {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 32px;
+  background: linear-gradient(145deg, #f5e6d3, #d4b48c);
+  border-radius: 30px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  transition: transform 0.5s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+}
+
+/* Левый бегунок – прижат к центру справа */
+.left-slider {
+  left: 50%;
+  transform: translate(calc(-100% - 6px), -50%);
+}
+
+/* Правый бегунок – прижат к центру слева */
+.right-slider {
+  left: 50%;
+  transform: translate(6px, -50%);
+}
+
+/* При открытии – разъезжаются в стороны */
+.zippacket.opening .left-slider {
+  transform: translate(calc(-100% - 80px), -50%);
+}
+.zippacket.opening .right-slider {
+  transform: translate(80px, -50%);
+}
+
+/* Тело пакета (нижняя часть) */
+.zip-body {
+  padding: 24px 20px;
+  text-align: center;
+  background: rgba(255, 250, 240, 0.9);
+  border-radius: 0 0 48px 48px;
+}
+.zip-text {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #b85c7e;
+  letter-spacing: 1px;
+}
+
+/* Анимация уплывания пакета вниз (очень медленно) */
+@keyframes flyDown {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, 120vh) scale(0.9);
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+.zippacket.fly-down {
+  animation: flyDown 1s forwards ease-in-out;
   pointer-events: none;
 }
 
-.open-btn {
-  background: #ffb7c5;
-  border: none;
-  padding: 1.2rem 2.2rem;
-  font-size: 1.7rem;
-  font-weight: bold;
-  border-radius: 80px;
-  box-shadow:
-    0 20px 35px rgba(0, 0, 0, 0.3),
-    inset 0 1px 2px rgba(255, 255, 200, 0.8);
-  color: #9e2a4e;
-  cursor: pointer;
-  transition: transform 0.2s;
-  font-family: inherit;
+/* Анимация прилёта пакета снизу (для закрытия) */
+@keyframes flyUp {
+  0% {
+    transform: translate(-50%, 120vh) scale(0.9);
+    opacity: 0;
+    visibility: visible;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+}
+.zippacket.fly-up {
+  animation: flyUp 1s forwards ease-in-out;
 }
 
-.open-btn:active {
-  transform: scale(0.96);
-}
-
-/* ---------- МАГНИТОЛА ---------- */
+/* ---------- МАГНИТОЛА (БУМБОКС) ---------- */
 .boombox {
   position: fixed;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%) scale(0.8);
+  transform: translate(-50%, -50%) scale(0.3);
   width: 90%;
   max-width: 380px;
   background: linear-gradient(145deg, #ffccdd, #ffa5c0);
@@ -104,24 +182,21 @@ body.open-mode .night-img {
   z-index: 30;
   opacity: 0;
   visibility: hidden;
-  transition: all 0.5s cubic-bezier(0.34, 1.2, 0.6, 1);
+  transition:
+    transform 1s cubic-bezier(0.2, 0.9, 0.4, 1.1),
+    opacity 1s ease-out;
   backdrop-filter: blur(2px);
   padding: 28px 18px 28px;
   border: 2px solid #ffe0f0;
   pointer-events: none;
 }
 
+/* Открытое состояние магнитолы (выехала из пакета) */
 .boombox.open {
+  transform: translate(-50%, -50%) scale(1);
   opacity: 1;
   visibility: visible;
-  transform: translate(-50%, -50%) scale(1);
   pointer-events: auto;
-}
-
-.boombox.closing {
-  transition: all 0.4s cubic-bezier(0.55, 0.085, 0.68, 0.53);
-  transform: translate(-50%, -50%) scale(0.6) rotate(-5deg);
-  opacity: 0;
 }
 
 .vinyl-section {
@@ -226,12 +301,10 @@ input[type="range"]::-webkit-slider-thumb {
     transform: translateX(0) scale(1);
     opacity: 1;
   }
-
   30% {
     transform: translateX(-30%) scale(1.2);
     opacity: 1;
   }
-
   100% {
     transform: translateX(-200%) scale(0.5);
     opacity: 0;
@@ -243,12 +316,10 @@ input[type="range"]::-webkit-slider-thumb {
     transform: translateX(0) scale(1);
     opacity: 1;
   }
-
   30% {
     transform: translateX(30%) scale(1.2);
     opacity: 1;
   }
-
   100% {
     transform: translateX(200%) scale(0.5);
     opacity: 0;
@@ -260,16 +331,13 @@ input[type="range"]::-webkit-slider-thumb {
     transform: translateX(-200%) scale(0.4);
     opacity: 0;
   }
-
   60% {
     transform: translateX(10%) scale(1.2);
     opacity: 1;
   }
-
   80% {
     transform: translateX(0) scale(1.05);
   }
-
   100% {
     transform: translateX(0) scale(1);
     opacity: 1;
@@ -281,16 +349,13 @@ input[type="range"]::-webkit-slider-thumb {
     transform: translateX(200%) scale(0.4);
     opacity: 0;
   }
-
   60% {
     transform: translateX(-10%) scale(1.2);
     opacity: 1;
   }
-
   80% {
     transform: translateX(0) scale(1.05);
   }
-
   100% {
     transform: translateX(0) scale(1);
     opacity: 1;
