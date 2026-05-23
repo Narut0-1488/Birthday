@@ -9,7 +9,7 @@
 body {
   min-height: 100vh;
   overflow: hidden;
-  font-family: 'Segoe UI', 'Poppins', system-ui, sans-serif;
+  font-family: "Segoe UI", "Poppins", system-ui, sans-serif;
 }
 
 /* ---------- КОНТЕЙНЕР С ИЗОБРАЖЕНИЯМИ ---------- */
@@ -28,7 +28,6 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  /* картинка заполняет экран без искажений */
   transition: transform 0.9s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -58,7 +57,9 @@ body.open-mode .night-img {
   align-items: center;
   justify-content: center;
   z-index: 20;
-  transition: opacity 0.5s ease, transform 0.6s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+  transition:
+    opacity 0.5s ease,
+    transform 0.6s cubic-bezier(0.2, 0.9, 0.4, 1.1);
   background: transparent;
   pointer-events: auto;
 }
@@ -76,7 +77,9 @@ body.open-mode .night-img {
   font-size: 1.7rem;
   font-weight: bold;
   border-radius: 80px;
-  box-shadow: 0 20px 35px rgba(0, 0, 0, 0.3), inset 0 1px 2px rgba(255, 255, 200, 0.8);
+  box-shadow:
+    0 20px 35px rgba(0, 0, 0, 0.3),
+    inset 0 1px 2px rgba(255, 255, 200, 0.8);
   color: #9e2a4e;
   cursor: pointer;
   transition: transform 0.2s;
@@ -103,7 +106,7 @@ body.open-mode .night-img {
   visibility: hidden;
   transition: all 0.5s cubic-bezier(0.34, 1.2, 0.6, 1);
   backdrop-filter: blur(2px);
-  padding: 20px 18px 28px;
+  padding: 28px 18px 28px;
   border: 2px solid #ffe0f0;
   pointer-events: none;
 }
@@ -121,40 +124,6 @@ body.open-mode .night-img {
   opacity: 0;
 }
 
-/* Остальные стили магнитолы (без изменений) */
-.top-panel {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-}
-
-.speaker {
-  background: repeating-linear-gradient(45deg, #b35f7a, #b35f7a 6px, #d47a9a 6px, #d47a9a 12px);
-  width: 70px;
-  height: 40px;
-  border-radius: 30px;
-  box-shadow: inset 0 0 0 2px #ffdfe8, 0 2px 5px black;
-}
-
-.close-icon {
-  background: #c46b8b;
-  border-radius: 50px;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28px;
-  cursor: pointer;
-  box-shadow: inset 0 1px 2px #ffdfe8, 0 3px 5px rgba(0, 0, 0, 0.3);
-  color: #fff0f5;
-}
-
-.close-icon:active {
-  transform: scale(0.92);
-}
-
 .vinyl-section {
   display: flex;
   justify-content: center;
@@ -165,7 +134,10 @@ body.open-mode .night-img {
 canvas {
   background: radial-gradient(circle, #f6d5e3, #e2aac2);
   border-radius: 50%;
-  box-shadow: 0 18px 20px rgba(0, 0, 0, 0.4), inset 0 0 0 5px #ffc0d0, inset 0 0 0 12px #e88eb0;
+  box-shadow:
+    0 18px 20px rgba(0, 0, 0, 0.4),
+    inset 0 0 0 5px #ffc0d0,
+    inset 0 0 0 12px #e88eb0;
   width: 210px;
   height: 210px;
   display: block;
@@ -207,6 +179,7 @@ canvas {
 .volume-area {
   display: flex;
   justify-content: center;
+  align-items: center;
   gap: 12px;
   background: #c17a9bc9;
   padding: 8px 16px;
@@ -247,7 +220,7 @@ input[type="range"]::-webkit-slider-thumb {
   }
 }
 
-/* Анимации дисков (без изменений) */
+/* Анимации дисков */
 @keyframes flyAwayLeft {
   0% {
     transform: translateX(0) scale(1);
