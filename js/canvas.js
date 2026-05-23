@@ -11,28 +11,25 @@ window.PeonyCanvas = (function () {
   // Параметры винила
   let centerX = 0,
     centerY = 0;
-  let outerRadius = 0; // внешний радиус дорожек
-  let innerRadius = 0; // радиус центральной наклейки
+  let outerRadius = 0;
+  let innerRadius = 0;
   let armBase = { x: 0, y: 0 };
 
   // Параметры тонарма
-  let currentArmRadius = 0; // радиус от центра до иглы (0..1, где 1 = outer, 0 = inner)
-  let targetArmRadius = 1; // целевое значение для плавного движения
-  let armLifted = false; // поднят ли тонарм
-  let armLiftProgress = 0; // 0=опущен, 1=поднят (анимация)
-  let lastProgress = 0; // запоминаем последний прогресс трека
-
-  // Для вибрации иглы
-  let vibrationOffset = { x: 0, y: 0 };
+  let currentArmRadius = 0;
+  let targetArmRadius = 1;
+  let armLifted = false;
+  let lastProgress = 0;
 
   // Изображения для лейблов
-  let labelImages = new Map(); // ключ: URL, значение: HTMLImageElement
+  let labelImages = new Map();
   let currentCoverSrc = null;
 
-  // Публичные параметры (устанавливаются из main.js)
-  let currentProgress = 0; // 0..1, положение иглы
+  // Публичные параметры
+  let currentProgress = 0;
   let isPlayingFlag = false;
 
+  // Функция загрузки одного изображения с кэшированием
   function loadImage(src) {
     return new Promise((resolve, reject) => {
       if (labelImages.has(src)) {
@@ -40,14 +37,27 @@ window.PeonyCanvas = (function () {
         return;
       }
       const img = new Image();
-      img.crossOrigin = "Anonymous"; // если нужно
+      img.crossOrigin = "Anonymous";
       img.onload = () => {
         labelImages.set(src, img);
+        console.log(`✅ Обложка загружена: ${src}`);
         resolve(img);
       };
-      img.onerror = () => reject(new Error(`Cannot load image ${src}`));
+      img.onerror = (err) => {
+        console.error(`❌ Ошибка загрузки обложки: ${src}`, err);
+        reject(err);
+      };
       img.src = src;
     });
+  }
+
+  // Предзагрузка всех обложек из массива
+  async function preloadAllCovers(coverList) {
+    const promises = coverList
+      .filter((src) => src)
+      .map((src) => loadImage(src).catch((e) => null));
+    await Promise.all(promises);
+    if (isActive) resizeAndRedraw();
   }
 
   function drawVinyl(w, h, time, angle) {
@@ -55,9 +65,8 @@ window.PeonyCanvas = (function () {
     centerX = w / 2;
     centerY = h / 2;
     outerRadius = Math.min(w, h) * 0.42;
-    innerRadius = outerRadius * 0.35; // радиус центральной наклейки
+    innerRadius = outerRadius * 0.45; // чуть больше для картинки
 
-    // Основание тонарма (справа внизу)
     armBase.x = w * 0.85;
     armBase.y = h * 0.75;
 
@@ -66,7 +75,7 @@ window.PeonyCanvas = (function () {
     ctx.rotate(angle);
     ctx.translate(-centerX, -centerY);
 
-    // 1. Диск винила
+    // Диск винила
     const gradVinyl = ctx.createLinearGradient(
       centerX - outerRadius * 0.2,
       centerY - outerRadius * 0.2,
@@ -92,7 +101,7 @@ window.PeonyCanvas = (function () {
     ctx.fillStyle = "rgba(255,255,255,0.08)";
     ctx.fill();
 
-    // Концентрические дорожки
+    // Дорожки
     const grooves = 12;
     for (let i = 0; i <= grooves; i++) {
       const r = outerRadius * (0.5 + (i * 0.5) / grooves);
@@ -103,7 +112,7 @@ window.PeonyCanvas = (function () {
       ctx.stroke();
     }
 
-    // 2. Центральная наклейка (лейбл)
+    // Центральная наклейка (лейбл)
     ctx.beginPath();
     ctx.arc(centerX, centerY, innerRadius, 0, Math.PI * 2);
     ctx.fillStyle = "#f5e6d3";
@@ -112,13 +121,14 @@ window.PeonyCanvas = (function () {
     ctx.lineWidth = 2;
     ctx.stroke();
 
-    // Рисуем изображение, если загружено
+    // Рисуем изображение, если оно загружено и соответствует текущему src
     if (currentCoverSrc && labelImages.has(currentCoverSrc)) {
       const img = labelImages.get(currentCoverSrc);
-      const imgSize = innerRadius * 1.8;
+      // Размер картинки чуть больше, чтобы покрыть всю наклейку
+      const imgSize = innerRadius * 1.9;
       ctx.save();
       ctx.beginPath();
-      ctx.arc(centerX, centerY, innerRadius - 4, 0, Math.PI * 2);
+      ctx.arc(centerX, centerY, innerRadius - 3, 0, Math.PI * 2);
       ctx.clip();
       ctx.drawImage(
         img,
@@ -129,7 +139,7 @@ window.PeonyCanvas = (function () {
       );
       ctx.restore();
     } else {
-      // Запасной градиент
+      // Запасной градиент (если картинка ещё не загрузилась)
       const gradLabel = ctx.createRadialGradient(
         centerX - 8,
         centerY - 8,
@@ -147,29 +157,22 @@ window.PeonyCanvas = (function () {
     }
 
     ctx.restore(); // сброс вращения
-
-    // 3. Тонарм (рисуется без вращения)
     drawTonarm(w, h, time);
   }
 
   function drawTonarm(w, h, time) {
-    // Вычисляем текущий радиус иглы (от центра) в пикселях
     let needleRadius =
       innerRadius + (outerRadius - innerRadius) * currentArmRadius;
-    // Если тонарм поднят – игла не касается пластинки, поднимаем вверх (уменьшаем радиус визуально или просто рисуем выше)
     let liftedOffsetY = armLifted ? -15 : 0;
 
-    // Угол от базы до точки иглы (в радианах)
-    let dx = centerX + Math.cos(0.5) * needleRadius - armBase.x; // игла чуть правее центра для реализма
+    let dx = centerX + Math.cos(0.5) * needleRadius - armBase.x;
     let dy = centerY + Math.sin(0.5) * needleRadius - 5 - armBase.y;
     let angleArm = Math.atan2(dy, dx);
     let armLength = Math.hypot(dx, dy);
 
-    // Рисуем тонарм (рука)
     ctx.save();
     ctx.translate(armBase.x, armBase.y);
     ctx.rotate(angleArm);
-    // Тень
     ctx.shadowBlur = 3;
     ctx.shadowColor = "rgba(0,0,0,0.5)";
     ctx.beginPath();
@@ -179,14 +182,12 @@ window.PeonyCanvas = (function () {
     ctx.lineTo(armLength - 8, 3);
     ctx.fillStyle = "#888";
     ctx.fill();
-    // Головка
     ctx.beginPath();
     ctx.rect(armLength - 12, -6, 12, 12);
     ctx.fillStyle = "#ccc";
     ctx.fill();
     ctx.restore();
 
-    // Игла (маленький кружок) с вибрацией
     let vibrX = 0,
       vibrY = 0;
     if (isPlayingFlag && !armLifted) {
@@ -208,39 +209,26 @@ window.PeonyCanvas = (function () {
   }
 
   function updateArmPosition() {
-    if (!isPlayingFlag || armLifted) {
-      // Не двигаем иглу при паузе или поднятии
-      return;
-    }
-    // Плавно двигаем currentArmRadius к targetArmRadius (который вычисляется из progress)
+    if (!isPlayingFlag || armLifted) return;
     let diff = targetArmRadius - currentArmRadius;
     currentArmRadius += diff * 0.1;
     if (Math.abs(diff) < 0.001) currentArmRadius = targetArmRadius;
   }
 
-  // Вызывается из main.js для обновления прогресса трека
   function setProgress(progress) {
     if (isNaN(progress)) progress = 0;
     progress = Math.min(1, Math.max(0, progress));
     currentProgress = progress;
-    // targetArmRadius: 1 = внешний край, 0 = внутренний край (касание картинки)
-    targetArmRadius = 1 - progress; // при progress=0 => внешний, progress=1 => внутренний
-    if (!isPlayingFlag || armLifted) {
-      // Если на паузе – не двигаем, но запоминаем целевое
-    }
+    targetArmRadius = 1 - progress;
   }
 
   function setPlaying(playing) {
     isPlayingFlag = playing;
-    if (!playing) {
-      // Останавливаем вибрацию (она и так по флагу)
-    }
   }
 
   function setArmLifted(lifted) {
     armLifted = lifted;
     if (!lifted) {
-      // Когда опускаем, сразу подтягиваем currentArmRadius к целевому
       currentArmRadius = targetArmRadius;
     }
   }
@@ -252,8 +240,13 @@ window.PeonyCanvas = (function () {
       await loadImage(src);
       if (isActive) resizeAndRedraw();
     } catch (e) {
-      console.warn("Cover not loaded", e);
+      console.warn(`Не удалось загрузить обложку ${src}`);
     }
+  }
+
+  // Публичный метод для предзагрузки нескольких обложек
+  function preloadCovers(coverArray) {
+    preloadAllCovers(coverArray);
   }
 
   function animate() {
@@ -274,9 +267,7 @@ window.PeonyCanvas = (function () {
       rotationAngle = currentRotation;
     }
 
-    // Обновляем позицию тонарма (плавное движение)
     updateArmPosition();
-
     drawVinyl(w, h, animTime, currentRotation);
     animationId = requestAnimationFrame(animate);
   }
@@ -342,5 +333,6 @@ window.PeonyCanvas = (function () {
     setPlaying,
     setArmLifted,
     setCoverImage,
+    preloadCovers,
   };
 })();

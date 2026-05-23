@@ -25,6 +25,14 @@
     },
   ];
 
+  // Предзагружаем обложки всех треков
+  const allCovers = playlist
+    .map((track) => track.coverSrc)
+    .filter((src) => src);
+  if (window.PeonyCanvas) {
+    window.PeonyCanvas.preloadCovers(allCovers);
+  }
+
   // DOM
   const hero = document.getElementById("heroScreen");
   const boombox = document.getElementById("boombox");
@@ -171,17 +179,12 @@
       musicAudio.pause();
     }
 
-    // Меняем аудио
+    // Меняем аудио (но обложку пока не трогаем)
     musicAudio = preloadedAudios[index];
     currentAudioIndex = index;
     musicAudio.volume = 0;
     const song = playlist[index];
     trackNameSpan.innerText = song.name;
-
-    // Обновляем обложку
-    if (window.PeonyCanvas && song.coverSrc) {
-      window.PeonyCanvas.setCoverImage(song.coverSrc);
-    }
 
     // Анимация диска (fly out/in)
     let flyOutClass, flyInClass;
@@ -197,6 +200,10 @@
     await new Promise((r) => setTimeout(r, 700));
     canvasElem.classList.remove(flyOutClass);
 
+    // ⭐ ВОТ ЗДЕСЬ МЕНЯЕМ ОБЛОЖКУ — когда диск уже улетел
+    if (window.PeonyCanvas && song.coverSrc) {
+      await window.PeonyCanvas.setCoverImage(song.coverSrc);
+    }
     // Сброс позиции тонарма (прогресс 0)
     if (window.PeonyCanvas) {
       window.PeonyCanvas.setProgress(0);
