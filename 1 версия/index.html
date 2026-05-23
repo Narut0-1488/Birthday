@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+    <title>Полина · Магнитола с пионами · 17 лет</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <div class="hero" id="heroScreen">
+      <button class="open-btn" id="openBtn">🎵 Открыть магнитолу 🎂</button>
+    </div>
+
+    <div class="boombox" id="boombox">
+      <div class="top-panel">
+        <div class="speaker"></div>
+        <div class="close-icon" id="closeBtn">✕</div>
+      </div>
+
+      <div class="vinyl-section" id="vinylTouchZone">
+        <canvas id="peonyCanvas" width="400" height="400"></canvas>
+      </div>
+
+      <div class="track-info">
+        <span class="track-name" id="trackName"
+          >🎂 С днём рождения, Полина!</span
+        >
+      </div>
+
+      <div class="control-buttons">
+        <button class="ctrl" id="prevBtn">⏮️</button>
+        <button class="ctrl" id="playPauseBtn">⏸️</button>
+        <button class="ctrl" id="nextBtn">⏭️</button>
+      </div>
+
+      <div class="volume-area">
+        <span class="volume-icon">🔊</span>
+        <input
+          type="range"
+          id="volumeSlider"
+          min="0"
+          max="1"
+          step="0.02"
+          value="0.7"
+        />
+      </div>
+    </div>
+
+    <script src="js/canvas.js"></script>
+    <script src="js/main.js"></script>
+  </body>
+</html>

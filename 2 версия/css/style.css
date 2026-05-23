@@ -1,0 +1,341 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  min-height: 100vh;
+  overflow: hidden;
+  font-family: 'Segoe UI', 'Poppins', system-ui, sans-serif;
+}
+
+/* ---------- КОНТЕЙНЕР С ИЗОБРАЖЕНИЯМИ ---------- */
+.scene-container {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.day-img,
+.night-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* картинка заполняет экран без искажений */
+  transition: transform 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.day-img {
+  transform: translateX(0);
+  z-index: 2;
+}
+
+.night-img {
+  transform: translateX(100%);
+  z-index: 1;
+}
+
+body.open-mode .day-img {
+  transform: translateX(-100%);
+}
+
+body.open-mode .night-img {
+  transform: translateX(0);
+}
+
+/* ---------- КНОПКА ---------- */
+.hero {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+  transition: opacity 0.5s ease, transform 0.6s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+  background: transparent;
+  pointer-events: auto;
+}
+
+.hero.hide {
+  opacity: 0;
+  transform: scale(0.8);
+  pointer-events: none;
+}
+
+.open-btn {
+  background: #ffb7c5;
+  border: none;
+  padding: 1.2rem 2.2rem;
+  font-size: 1.7rem;
+  font-weight: bold;
+  border-radius: 80px;
+  box-shadow: 0 20px 35px rgba(0, 0, 0, 0.3), inset 0 1px 2px rgba(255, 255, 200, 0.8);
+  color: #9e2a4e;
+  cursor: pointer;
+  transition: transform 0.2s;
+  font-family: inherit;
+}
+
+.open-btn:active {
+  transform: scale(0.96);
+}
+
+/* ---------- МАГНИТОЛА ---------- */
+.boombox {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.8);
+  width: 90%;
+  max-width: 380px;
+  background: linear-gradient(145deg, #ffccdd, #ffa5c0);
+  border-radius: 48px 48px 56px 56px;
+  box-shadow: 0 30px 40px rgba(0, 0, 0, 0.5);
+  z-index: 30;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.5s cubic-bezier(0.34, 1.2, 0.6, 1);
+  backdrop-filter: blur(2px);
+  padding: 20px 18px 28px;
+  border: 2px solid #ffe0f0;
+  pointer-events: none;
+}
+
+.boombox.open {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, -50%) scale(1);
+  pointer-events: auto;
+}
+
+.boombox.closing {
+  transition: all 0.4s cubic-bezier(0.55, 0.085, 0.68, 0.53);
+  transform: translate(-50%, -50%) scale(0.6) rotate(-5deg);
+  opacity: 0;
+}
+
+/* Остальные стили магнитолы (без изменений) */
+.top-panel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.speaker {
+  background: repeating-linear-gradient(45deg, #b35f7a, #b35f7a 6px, #d47a9a 6px, #d47a9a 12px);
+  width: 70px;
+  height: 40px;
+  border-radius: 30px;
+  box-shadow: inset 0 0 0 2px #ffdfe8, 0 2px 5px black;
+}
+
+.close-icon {
+  background: #c46b8b;
+  border-radius: 50px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  cursor: pointer;
+  box-shadow: inset 0 1px 2px #ffdfe8, 0 3px 5px rgba(0, 0, 0, 0.3);
+  color: #fff0f5;
+}
+
+.close-icon:active {
+  transform: scale(0.92);
+}
+
+.vinyl-section {
+  display: flex;
+  justify-content: center;
+  margin: 8px 0 12px;
+  touch-action: none;
+}
+
+canvas {
+  background: radial-gradient(circle, #f6d5e3, #e2aac2);
+  border-radius: 50%;
+  box-shadow: 0 18px 20px rgba(0, 0, 0, 0.4), inset 0 0 0 5px #ffc0d0, inset 0 0 0 12px #e88eb0;
+  width: 210px;
+  height: 210px;
+  display: block;
+  cursor: pointer;
+}
+
+.track-info {
+  background: #d48baec9;
+  margin: 12px 0 8px;
+  padding: 10px;
+  border-radius: 50px;
+  text-align: center;
+  color: #fff0f5;
+  font-weight: bold;
+}
+
+.control-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 35px;
+  margin: 10px 0 12px;
+}
+
+.ctrl {
+  background: #b85c7e;
+  border: none;
+  font-size: 2rem;
+  padding: 8px 16px;
+  border-radius: 50px;
+  box-shadow: 0 5px 0 #6e3450;
+  cursor: pointer;
+  color: #fff0f5;
+}
+
+.ctrl:active {
+  transform: translateY(2px);
+}
+
+.volume-area {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  background: #c17a9bc9;
+  padding: 8px 16px;
+  border-radius: 50px;
+  width: fit-content;
+  margin: 6px auto 0;
+}
+
+input[type="range"] {
+  width: 140px;
+  height: 4px;
+  -webkit-appearance: none;
+  background: #ffdfe8;
+  border-radius: 5px;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  background: #ff99bb;
+  border-radius: 50%;
+}
+
+@media (max-width: 450px) {
+  canvas {
+    width: 180px;
+    height: 180px;
+  }
+
+  .ctrl {
+    font-size: 1.7rem;
+    padding: 5px 14px;
+  }
+
+  .track-name {
+    font-size: 0.8rem;
+  }
+}
+
+/* Анимации дисков (без изменений) */
+@keyframes flyAwayLeft {
+  0% {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+
+  30% {
+    transform: translateX(-30%) scale(1.2);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateX(-200%) scale(0.5);
+    opacity: 0;
+  }
+}
+
+@keyframes flyAwayRight {
+  0% {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+
+  30% {
+    transform: translateX(30%) scale(1.2);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateX(200%) scale(0.5);
+    opacity: 0;
+  }
+}
+
+@keyframes flyInFromLeft {
+  0% {
+    transform: translateX(-200%) scale(0.4);
+    opacity: 0;
+  }
+
+  60% {
+    transform: translateX(10%) scale(1.2);
+    opacity: 1;
+  }
+
+  80% {
+    transform: translateX(0) scale(1.05);
+  }
+
+  100% {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes flyInFromRight {
+  0% {
+    transform: translateX(200%) scale(0.4);
+    opacity: 0;
+  }
+
+  60% {
+    transform: translateX(-10%) scale(1.2);
+    opacity: 1;
+  }
+
+  80% {
+    transform: translateX(0) scale(1.05);
+  }
+
+  100% {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.canvas-fly-out-left {
+  animation: flyAwayLeft 0.7s forwards;
+}
+
+.canvas-fly-out-right {
+  animation: flyAwayRight 0.7s forwards;
+}
+
+.canvas-fly-in-left {
+  animation: flyInFromLeft 0.7s forwards;
+}
+
+.canvas-fly-in-right {
+  animation: flyInFromRight 0.7s forwards;
+}
